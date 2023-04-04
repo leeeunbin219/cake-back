@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "03-cake"
+version = "0.1.0"
+description = ""
+authors = ["suhyun <id_suhyun@naver.com>"]
+readme = "README.md"
+packages = [{include = "03_cake"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.2"
+djangorestframework = "^3.14.0"
+django-cors-headers = "^3.14.0"
+django-colorfield = "^0.8.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
