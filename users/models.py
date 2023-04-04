@@ -3,6 +3,8 @@ from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser
 from .manager import CustomUserManager
 
+# from cake.models import UserCake
+
 
 class User(AbstractUser):
     username = None
@@ -18,7 +20,7 @@ class User(AbstractUser):
         blank=False,
         validators=[MinLengthValidator(2, "닉네임은 2자 이상, 7자 미만 이어야합니다.")],
     )
-    
+
     email = models.EmailField(
         blank=False,
         unique=True,

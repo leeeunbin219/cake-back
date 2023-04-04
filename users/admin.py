@@ -35,5 +35,5 @@ class UserAdmin(admin.ModelAdmin):
         ),
     )
 
-    list_display = ("name", "nickname", "email", "birthday", "is_admin")
-    list_display_links = ("name", "nickname", "email")
+    list_display = ("pk","name", "nickname", "email", "birthday", "is_admin")
+    list_display_links = ("pk","name", "nickname", "email")
