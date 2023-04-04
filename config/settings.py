@@ -1,3 +1,5 @@
+# 프론트와 백엔드 통신 (4/5)
+
 import os
 import environ
 from pathlib import Path
@@ -43,10 +45,24 @@ SYSTEM_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",  # 사이트 정보를 설정하기 위해 필요
+    "allauth",
+    "allauth.account",  # 가입한 계정을 관리하기 위한 것.
+    "allauth.socialaccount",  # 소셜 계정을 관리하기 위한 것.
+    "allauth.socialaccount.providers.kakao",
+    "allauth.socialaccount.providers.google",
 ]
 
 INSTALLED_APPS = SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
 
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -72,6 +88,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.request",
             ],
         },
     },
@@ -115,6 +132,11 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = "ko-kr"
 
 TIME_ZONE = "Asia/Seoul"
+
+DATE_INPUT_FORMATS = ["%Y-%m-%d"]
+
+DATE_FORMAT = "F j"
+
 
 USE_I18N = False
 
