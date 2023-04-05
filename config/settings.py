@@ -32,8 +32,7 @@ THIRD_PARTY_APPS = [
 
 CUSTOM_APPS = [
     "users.apps.UsersConfig",
-    "cake.apps.CakeConfig",
-    "visitors.apps.VisitorsConfig",
+    "cakes.apps.CakesConfig",
     "common.apps.CommonConfig",
 ]
 

@@ -2,11 +2,9 @@ import re
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.serializers import ModelSerializer
 from .models import User
-# from visitors.models import Visitor
 
 # 회원가입 시 필요한 정보
 class SignupSerializer(ModelSerializer):
-    
     class Meta:
         model = User
         fields = (
@@ -17,7 +15,7 @@ class SignupSerializer(ModelSerializer):
             "password",
             "birthday",
         )
-    
+
     def validate_password(self, password):
 
         if password:
@@ -33,6 +31,34 @@ class SignupSerializer(ModelSerializer):
         return password
 
 
+# 유저 정보 조회 및 수정 삭제 (user용)
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "name",
+            "nickname",
+            "email",
+            "password",
+            "birthday",
+        )
+
+
+# 유저 정보 자세히 조회 (admin용)
+class UserDetailSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "name",
+            "nickname",
+            "email",
+            "birthday",
+            "is_active",
+            "is_admin",
+            "date_joined",
+            "last_login",
+        )
 
 
 # 로그인 시 필요한 정보
@@ -43,4 +69,3 @@ class UserLoginSerializer(ModelSerializer):
             "email",
             "password",
         )
-        

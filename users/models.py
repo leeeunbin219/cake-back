@@ -3,8 +3,6 @@ from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser
 from .manager import CustomUserManager
 
-# from cake.models import UserCake
-
 
 class User(AbstractUser):
     username = None
@@ -37,6 +35,6 @@ class User(AbstractUser):
     birthday = models.DateField(blank=True, null=True)
 
     # cake = models.ForeignKey("cake.UserCake", on_delete=models.CASCADE, null=True, related_name="users")
-    
+
     def __str__(self):
         return self.nickname
