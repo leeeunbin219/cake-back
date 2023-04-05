@@ -10,8 +10,10 @@ class UserCakeAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "user",
-                    "shape",
-                    "color",
+                    "cakeshape",
+                    "cakecolor",
+                    "cream",
+                    "creamcolor",
                     "image",
                     "lettering",
                 ),
@@ -23,14 +25,16 @@ class UserCakeAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "user",
-        "shape",
+        "cakeshape",
+        "cream",
         "lettering",
         "total_visitor",
     )
     list_display_links = (
         "pk",
         "user",
-        "shape",
+        "cakeshape",
+        "cream",
         "lettering",
         "total_visitor",
     )
@@ -44,10 +48,9 @@ class DecoCakeAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "usercake",
-                    "cream",
-                    "creamcolor",
-                    "letter",
                     "visitor",
+                    "toppings",
+                    "letter",
                 ),
                 "classes": ("wide",),
             },
@@ -63,6 +66,6 @@ class DecoCakeAdmin(admin.ModelAdmin):
     list_display_links = (
         "pk",
         "usercake",
-        "letter",
         "visitor",
+        "letter",
     )

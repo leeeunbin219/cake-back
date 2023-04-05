@@ -36,5 +36,7 @@ class User(AbstractUser):
 
     birthday = models.DateField(blank=True, null=True)
 
+    # cake = models.ForeignKey("cake.UserCake", on_delete=models.CASCADE, null=True, related_name="users")
+    
     def __str__(self):
         return self.nickname
