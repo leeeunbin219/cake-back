@@ -42,7 +42,6 @@ class CakeBaseAdmin(admin.ModelAdmin):
     list_filter = ("nickname","cakeshape","cream")
     
 
-
 @admin.register(DecoCake)
 class DecoAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -64,6 +63,7 @@ class DecoAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "usercake",
+        "toppings",
         "letter",
         "visitor_name",
     )
@@ -71,6 +71,7 @@ class DecoAdmin(admin.ModelAdmin):
     list_display_links = (
         "pk",
         "usercake",
+        "toppings",
         "letter",
         "visitor_name",
     )

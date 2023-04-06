@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework import permissions
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -7,7 +8,7 @@ from rest_framework.status import (
     HTTP_403_FORBIDDEN,
 )
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly,AllowAny
 from rest_framework.exceptions import (
     NotFound,
     NotAuthenticated,
@@ -18,7 +19,7 @@ from rest_framework.exceptions import (
 from django.db import transaction
 
 from .serializers import (
-    CakeBaseSerializer,
+    CakeDetailSerializer,
     DecoCakeSerializer,
     DecoCakeDetailSerializer,
     CreateCakeSerializer,
@@ -27,8 +28,24 @@ from .models import CakeBase, DecoCake
 from users.models import User
 
 
-# 유저가 만든 케이크 생성
-class UserCreateCake(APIView):
+# 권한 생성
+class IsVisitorOrOwner(permissions.BasePermission):
+    """ visitor or owner 의 권한 커스텀 """
+    def has_object_permission(self, request, view, obj):
+        if request.user == obj.usercake.user or request.data.get("visitor_password") == obj.visitor_password:
+            return True
+        return False
+    
+class EditDeco(permissions.BasePermission):
+    """ 데코 수정 권한 커스텀 """
+    def has_object_permission(self, request, view, obj):
+        if request.data.get("visitor_password") == obj.visitor_password:
+            return True
+        return False
+
+
+# 유저가 케이크 생성
+class CreateCakeView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request):
@@ -36,14 +53,13 @@ class UserCreateCake(APIView):
         serializer = CreateCakeSerializer(
             all_cakes,
             many=True,
-            context={"request": request},
         )
         return Response(serializer.data, status=HTTP_200_OK)
 
     def post(self, request):
         serializer = CreateCakeSerializer(data=request.data)
         if serializer.is_valid():
-            cake = serializer.save()
+            serializer.save(email=request.user, request=request)
             return Response(serializer.data, status=HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
@@ -52,8 +68,6 @@ class UserCreateCake(APIView):
 # 유저가 만든 케이크 조회, 생성, 수정 및 삭제
 class CakeBaseDetailViews(APIView):
 
-    permission_classes = [IsAuthenticated]
-
     def get_object(self, pk):
         try:
             return CakeBase.objects.get(pk=pk)
@@ -62,57 +76,60 @@ class CakeBaseDetailViews(APIView):
 
     def get(self, request, pk):
         cake = self.get_object(pk)
-        serializer = CakeBaseSerializer(cake)
+        serializer = CakeDetailSerializer(cake)
         return Response(serializer.data, status=HTTP_200_OK)
 
     def put(self, request, pk):
         cake = self.get_object(pk)
-        serializer = CakeBaseSerializer(
+        serializer = CakeDetailSerializer(
             cake,
             data=request.data,
             partial=True,
         )
+        if cake.email != request.user:
+            return Response(status=HTTP_403_FORBIDDEN)
         if serializer.is_valid():
-            updated_cake = serializer.save()
-            return Response(CakeBaseSerializer(updated_cake).data)
+            serializer.save()
+            return Response(serializer.data, status=HTTP_200_OK)
         else:
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         cake = self.get_object(pk)
+        if cake.email.email != request.user:
+            return Response(status=HTTP_403_FORBIDDEN)
         cake.delete()
         return Response(status=HTTP_204_NO_CONTENT)
 
 
-# 방문자가 꾸민 케이크의 토핑 및 편지
+# 방문자가 꾸미는 케이크의 토핑 및 편지
 class DecoCakeViews(APIView):
-    def get_object(self, pk):
-        try:
-            return CakeBase.objects.get(pk=pk)
-        except CakeBase.DoesNotExist:
-            return NotFound(status=HTTP_400_BAD_REQUEST)
-        
-    def get(self,request,pk):
-        cake = self.get_object(pk)
-        serializer = DecoCakeSerializer(cake)
+    
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        all_decocakes = DecoCake.objects.all()
+        serializer = DecoCakeSerializer(
+            all_decocakes,
+            many=True,
+        )
         return Response(serializer.data, status=HTTP_200_OK)
     
-
-    def post(self, request, pk):
+    def post(self, request):
         serializer = DecoCakeSerializer(data=request.data)
         if serializer.is_valid():
-            decocake = serializer.save(
-                nickname=request.data.get("nickname"),
-                usercake=self.get_object(pk=pk),
-            )
-            serializer = DecoCakeSerializer(decocake)
+            serializer.save()
             return Response(serializer.data, status=HTTP_201_CREATED)
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 # 방문자가 꾸민 케이크의 토핑 및 편지 조회 수정 삭제
 # 방문자는 조회/수정/삭제 가능 // 유저는 삭제만 가능
 class DecoDetailView(APIView):
+    
+    # permission_classes = [IsAuthenticated, IsVisitorOrOwner]
+    
     def get_object(self, pk):
         try:
             return DecoCake.objects.get(pk=pk)
@@ -121,15 +138,13 @@ class DecoDetailView(APIView):
 
     def get(self, request, pk):
         decocake = self.get_object(pk)
-        if decocake.visitor_name != request.data.get("visitor_name"):
-            raise PermissionDenied()
         serializer = DecoCakeDetailSerializer(decocake)
         return Response(serializer.data, status=HTTP_200_OK)
 
     def put(self, request, pk):
         decocake = self.get_object(pk)
 
-        if decocake.visitor_name != request.data.get("visitor_name"):
+        if not EditDeco().has_object_permission(request, self, decocake):
             raise PermissionDenied()
 
         serializer = DecoCakeDetailSerializer(

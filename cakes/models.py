@@ -16,8 +16,8 @@ class CakeBase(models.Model):
         ROUND = "round"
         STRIPE = "stripe"
         FLOWER = "flower"
-        
     
+
     nickname = models.CharField(max_length=7, blank=False)
 
     email = models.OneToOneField(
@@ -55,22 +55,22 @@ class CakeBase(models.Model):
         default="Happy Birthday",
         help_text="케이크 위에 쓰여질 글자를 입력하세요.",
     )
-    
+
     letter = models.TextField(max_length=50, blank=True, null=True)
-    
+
     visitor_name = models.CharField(max_length=7, blank=True, null=True)
     visitor_password = models.CharField(max_length=4, blank=True, null=True)
-    
 
     def __str__(self) -> str:
-        return f"{self.email}"
+        return self.email
 
 
 # 방문자의 케이크 꾸미기 (DecoCake)
 class DecoCake(models.Model):
-    
+
     usercake = models.ForeignKey(
         "CakeBase",
+        # "cakes.CakeBase",
         on_delete=models.CASCADE,
         related_name="decocakes",
     )
@@ -100,7 +100,7 @@ class DecoCake(models.Model):
         max_length=7,
         blank=False,
         null=False,
-        help_text= "방문자의 이름을 입력하세요.",
+        help_text="방문자의 이름을 입력하세요.",
     )
 
     visitor_password = models.CharField(
@@ -111,10 +111,6 @@ class DecoCake(models.Model):
         help_text="비밀번호는 4자리 숫자로 이루어져야합니다.",
     )
 
-    # def __str__(self) -> str:
-    #     return self.usercake
-
     def __str__(self) -> str:
         return self.visitor_name
-
 

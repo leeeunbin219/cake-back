@@ -2,6 +2,7 @@ import re
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.serializers import ModelSerializer
 from .models import User
+from cakes.models import DecoCake
 
 # 회원가입 시 필요한 정보
 class SignupSerializer(ModelSerializer):
@@ -44,6 +45,16 @@ class UserSerializer(ModelSerializer):
         )
 
 
+# 유저 정보 간략히 조회 (view 사용)
+class MiniUserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "nickname",
+            "email",
+            "birthday",)
+
+
 # 유저 정보 자세히 조회 (admin용)
 class UserDetailSerializer(ModelSerializer):
     class Meta:
@@ -69,3 +80,16 @@ class UserLoginSerializer(ModelSerializer):
             "email",
             "password",
         )
+
+
+# visitor 정보
+class VisitorSerializer(ModelSerializer):
+    class Meta:
+        model = DecoCake
+        fields = (
+            # "usercake",
+            "visitor_name",
+            # "visitor_password",
+        )
+
+
